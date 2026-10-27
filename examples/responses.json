@@ -1,0 +1,445 @@
+{
+  "news": {
+    "request": {
+      "url": "https://example.com/news",
+      "query": null
+    },
+    "page": {
+      "title": "Battery research findings",
+      "description": "A fictional research report for the offline demo.",
+      "canonical_url": "https://example.com/news",
+      "language": "en"
+    },
+    "content": {
+      "main_text": "Battery research findings\nA laboratory prototype retained 92% of its battery capacity after 1,000 charging cycles. The experiment used 24 cells under controlled temperatures.\n\nLimitations\nThe study did not evaluate mass production or extreme weather. Independent replication is needed before commercial claims can be made.\n\nOther science news\nA separate astronomy team published a new map of distant galaxies.",
+      "sections": [
+        {
+          "heading": "Battery research findings",
+          "text": "A laboratory prototype retained 92% of its battery capacity after 1,000 charging cycles. The experiment used 24 cells under controlled temperatures.",
+          "relevance_score": 0.0
+        },
+        {
+          "heading": "Limitations",
+          "text": "The study did not evaluate mass production or extreme weather. Independent replication is needed before commercial claims can be made.",
+          "relevance_score": 0.0
+        },
+        {
+          "heading": "Other science news",
+          "text": "A separate astronomy team published a new map of distant galaxies.",
+          "relevance_score": 0.0
+        }
+      ]
+    },
+    "links": [],
+    "metadata": {
+      "published_time": "",
+      "author": "",
+      "structured_data": [],
+      "content_type": "text/html",
+      "fetch_method": "http",
+      "cached": false,
+      "final_url": "https://example.com/news",
+      "fetch_duration_ms": 1.12,
+      "parse_duration_ms": 7.89,
+      "query_matched": true,
+      "token_estimator": "utf8_bytes_div_4",
+      "metrics_scope": "main_text"
+    },
+    "optimization": {
+      "raw_bytes": 1399,
+      "raw_text_characters": 1075,
+      "returned_characters": 409,
+      "reduction_percent": 61.95,
+      "estimated_raw_tokens": 269,
+      "estimated_clean_tokens": 88,
+      "estimated_returned_tokens": 103,
+      "estimated_tokens_saved": 166,
+      "token_reduction_percent": 61.71
+    },
+    "actions": []
+  },
+  "documentation": {
+    "request": {
+      "url": "https://example.com/documentation",
+      "query": null
+    },
+    "page": {
+      "title": "Bridge client guide",
+      "description": "",
+      "canonical_url": "https://example.com/documentation",
+      "language": "en"
+    },
+    "content": {
+      "main_text": "Installation\nInstall the client and send a request to the bridge endpoint.\n\nInstallation\n```\nimport httpx\nresult = httpx.post(\"http://localhost:8000/v1/extract\",\n                    json={\"html\": \"<p>Hello world</p>\"})\nprint(result.json())\n```\n\nOptions\nOption | Default\nmax_content_length | 12000\ninclude_links | true\n\nOptions\nSee the API reference for details.",
+      "sections": [
+        {
+          "heading": "Installation",
+          "text": "Install the client and send a request to the bridge endpoint.",
+          "relevance_score": 0.0
+        },
+        {
+          "heading": "Installation",
+          "text": "```\nimport httpx\nresult = httpx.post(\"http://localhost:8000/v1/extract\",\n                    json={\"html\": \"<p>Hello world</p>\"})\nprint(result.json())\n```",
+          "relevance_score": 0.0
+        },
+        {
+          "heading": "Options",
+          "text": "Option | Default\nmax_content_length | 12000\ninclude_links | true",
+          "relevance_score": 0.0
+        },
+        {
+          "heading": "Options",
+          "text": "See the API reference for details.",
+          "relevance_score": 0.0
+        }
+      ]
+    },
+    "links": [
+      {
+        "text": "API reference",
+        "url": "https://example.com/reference"
+      }
+    ],
+    "metadata": {
+      "published_time": "",
+      "author": "",
+      "structured_data": [],
+      "content_type": "text/html",
+      "fetch_method": "http",
+      "cached": false,
+      "final_url": "https://example.com/documentation",
+      "fetch_duration_ms": 1.04,
+      "parse_duration_ms": 2.47,
+      "query_matched": true,
+      "token_estimator": "utf8_bytes_div_4",
+      "metrics_scope": "main_text"
+    },
+    "optimization": {
+      "raw_bytes": 1009,
+      "raw_text_characters": 684,
+      "returned_characters": 361,
+      "reduction_percent": 47.22,
+      "estimated_raw_tokens": 171,
+      "estimated_clean_tokens": 79,
+      "estimated_returned_tokens": 91,
+      "estimated_tokens_saved": 80,
+      "token_reduction_percent": 46.78
+    },
+    "actions": []
+  },
+  "encyclopedia": {
+    "request": {
+      "url": "https://example.com/encyclopedia",
+      "query": null
+    },
+    "page": {
+      "title": "Photosynthesis",
+      "description": "",
+      "canonical_url": "https://example.com/encyclopedia",
+      "language": "en"
+    },
+    "content": {
+      "main_text": "Photosynthesis\nPhotosynthesis converts light energy into chemical energy. Plants, algae and some bacteria use this process.\n\nMechanism\n- Light-dependent reactions capture energy.\n\nMechanism\n- Carbon fixation builds organic molecules.\n\nSources\nThis demonstration is simplified educational content. Reference material .",
+      "sections": [
+        {
+          "heading": "Photosynthesis",
+          "text": "Photosynthesis converts light energy into chemical energy. Plants, algae and some bacteria use this process.",
+          "relevance_score": 0.0
+        },
+        {
+          "heading": "Mechanism",
+          "text": "- Light-dependent reactions capture energy.",
+          "relevance_score": 0.0
+        },
+        {
+          "heading": "Mechanism",
+          "text": "- Carbon fixation builds organic molecules.",
+          "relevance_score": 0.0
+        },
+        {
+          "heading": "Sources",
+          "text": "This demonstration is simplified educational content. Reference material .",
+          "relevance_score": 0.0
+        }
+      ]
+    },
+    "links": [
+      {
+        "text": "Reference material",
+        "url": "https://example.com/reference"
+      }
+    ],
+    "metadata": {
+      "published_time": "",
+      "author": "",
+      "structured_data": [],
+      "content_type": "text/html",
+      "fetch_method": "http",
+      "cached": false,
+      "final_url": "https://example.com/encyclopedia",
+      "fetch_duration_ms": 1.33,
+      "parse_duration_ms": 2.62,
+      "query_matched": true,
+      "token_estimator": "utf8_bytes_div_4",
+      "metrics_scope": "main_text"
+    },
+    "optimization": {
+      "raw_bytes": 907,
+      "raw_text_characters": 673,
+      "returned_characters": 317,
+      "reduction_percent": 52.9,
+      "estimated_raw_tokens": 169,
+      "estimated_clean_tokens": 68,
+      "estimated_returned_tokens": 80,
+      "estimated_tokens_saved": 89,
+      "token_reduction_percent": 52.66
+    },
+    "actions": []
+  },
+  "query": {
+    "request": {
+      "url": "https://example.com/news",
+      "query": "battery findings"
+    },
+    "page": {
+      "title": "Battery research findings",
+      "description": "A fictional research report for the offline demo.",
+      "canonical_url": "https://example.com/news",
+      "language": "en"
+    },
+    "content": {
+      "main_text": "Battery research findings\nA laboratory prototype retained 92% of its battery capacity after 1,000 charging cycles. The experiment used 24 cells under controlled temperatures.",
+      "sections": [
+        {
+          "heading": "Battery research findings",
+          "text": "A laboratory prototype retained 92% of its battery capacity after 1,000 charging cycles. The experiment used 24 cells under controlled temperatures.",
+          "relevance_score": 3.8655
+        }
+      ]
+    },
+    "links": [],
+    "metadata": {
+      "published_time": "",
+      "author": "",
+      "structured_data": [],
+      "content_type": "text/html",
+      "fetch_method": "http",
+      "cached": true,
+      "final_url": "https://example.com/news",
+      "fetch_duration_ms": 0.0,
+      "parse_duration_ms": 0,
+      "query_matched": true,
+      "token_estimator": "utf8_bytes_div_4",
+      "metrics_scope": "main_text"
+    },
+    "optimization": {
+      "raw_bytes": 1399,
+      "raw_text_characters": 1075,
+      "returned_characters": 174,
+      "reduction_percent": 83.81,
+      "estimated_raw_tokens": 269,
+      "estimated_clean_tokens": 88,
+      "estimated_returned_tokens": 44,
+      "estimated_tokens_saved": 225,
+      "token_reduction_percent": 83.64
+    },
+    "actions": []
+  },
+  "batch": {
+    "results": [
+      {
+        "url": "https://example.com/news",
+        "result": {
+          "request": {
+            "url": "https://example.com/news",
+            "query": null
+          },
+          "page": {
+            "title": "Battery research findings",
+            "description": "A fictional research report for the offline demo.",
+            "canonical_url": "https://example.com/news",
+            "language": "en"
+          },
+          "content": {
+            "main_text": "Battery research findings\nA laboratory prototype retained 92% of its battery capacity after 1,000 charging cycles. The experiment used 24 cells under controlled temperatures.\n\nLimitations\nThe study did not evaluate mass production or extreme weather. Independent replication is needed before commercial claims can be made.\n\nOther science news\nA separate astronomy team published a new map of distant galaxies.",
+            "sections": [
+              {
+                "heading": "Battery research findings",
+                "text": "A laboratory prototype retained 92% of its battery capacity after 1,000 charging cycles. The experiment used 24 cells under controlled temperatures.",
+                "relevance_score": 0.0
+              },
+              {
+                "heading": "Limitations",
+                "text": "The study did not evaluate mass production or extreme weather. Independent replication is needed before commercial claims can be made.",
+                "relevance_score": 0.0
+              },
+              {
+                "heading": "Other science news",
+                "text": "A separate astronomy team published a new map of distant galaxies.",
+                "relevance_score": 0.0
+              }
+            ]
+          },
+          "links": [],
+          "metadata": {
+            "published_time": "",
+            "author": "",
+            "structured_data": [],
+            "content_type": "text/html",
+            "fetch_method": "http",
+            "cached": true,
+            "final_url": "https://example.com/news",
+            "fetch_duration_ms": 0,
+            "parse_duration_ms": 0,
+            "query_matched": true,
+            "token_estimator": "utf8_bytes_div_4",
+            "metrics_scope": "main_text"
+          },
+          "optimization": {
+            "raw_bytes": 1399,
+            "raw_text_characters": 1075,
+            "returned_characters": 409,
+            "reduction_percent": 61.95,
+            "estimated_raw_tokens": 269,
+            "estimated_clean_tokens": 88,
+            "estimated_returned_tokens": 103,
+            "estimated_tokens_saved": 166,
+            "token_reduction_percent": 61.71
+          },
+          "actions": []
+        }
+      },
+      {
+        "url": "https://example.com/documentation",
+        "result": {
+          "request": {
+            "url": "https://example.com/documentation",
+            "query": null
+          },
+          "page": {
+            "title": "Bridge client guide",
+            "description": "",
+            "canonical_url": "https://example.com/documentation",
+            "language": "en"
+          },
+          "content": {
+            "main_text": "Installation\nInstall the client and send a request to the bridge endpoint.\n\nInstallation\n```\nimport httpx\nresult = httpx.post(\"http://localhost:8000/v1/extract\",\n                    json={\"html\": \"<p>Hello world</p>\"})\nprint(result.json())\n```\n\nOptions\nOption | Default\nmax_content_length | 12000\ninclude_links | true\n\nOptions\nSee the API reference for details.",
+            "sections": [
+              {
+                "heading": "Installation",
+                "text": "Install the client and send a request to the bridge endpoint.",
+                "relevance_score": 0.0
+              },
+              {
+                "heading": "Installation",
+                "text": "```\nimport httpx\nresult = httpx.post(\"http://localhost:8000/v1/extract\",\n                    json={\"html\": \"<p>Hello world</p>\"})\nprint(result.json())\n```",
+                "relevance_score": 0.0
+              },
+              {
+                "heading": "Options",
+                "text": "Option | Default\nmax_content_length | 12000\ninclude_links | true",
+                "relevance_score": 0.0
+              },
+              {
+                "heading": "Options",
+                "text": "See the API reference for details.",
+                "relevance_score": 0.0
+              }
+            ]
+          },
+          "links": [
+            {
+              "text": "API reference",
+              "url": "https://example.com/reference"
+            }
+          ],
+          "metadata": {
+            "published_time": "",
+            "author": "",
+            "structured_data": [],
+            "content_type": "text/html",
+            "fetch_method": "http",
+            "cached": true,
+            "final_url": "https://example.com/documentation",
+            "fetch_duration_ms": 0,
+            "parse_duration_ms": 0,
+            "query_matched": true,
+            "token_estimator": "utf8_bytes_div_4",
+            "metrics_scope": "main_text"
+          },
+          "optimization": {
+            "raw_bytes": 1009,
+            "raw_text_characters": 684,
+            "returned_characters": 361,
+            "reduction_percent": 47.22,
+            "estimated_raw_tokens": 171,
+            "estimated_clean_tokens": 79,
+            "estimated_returned_tokens": 91,
+            "estimated_tokens_saved": 80,
+            "token_reduction_percent": 46.78
+          },
+          "actions": []
+        }
+      }
+    ]
+  },
+  "cached": {
+    "request": {
+      "url": "https://example.com/news",
+      "query": null
+    },
+    "page": {
+      "title": "Battery research findings",
+      "description": "A fictional research report for the offline demo.",
+      "canonical_url": "https://example.com/news",
+      "language": "en"
+    },
+    "content": {
+      "main_text": "Battery research findings\nA laboratory prototype retained 92% of its battery capacity after 1,000 charging cycles. The experiment used 24 cells under controlled temperatures.\n\nLimitations\nThe study did not evaluate mass production or extreme weather. Independent replication is needed before commercial claims can be made.\n\nOther science news\nA separate astronomy team published a new map of distant galaxies.",
+      "sections": [
+        {
+          "heading": "Battery research findings",
+          "text": "A laboratory prototype retained 92% of its battery capacity after 1,000 charging cycles. The experiment used 24 cells under controlled temperatures.",
+          "relevance_score": 0.0
+        },
+        {
+          "heading": "Limitations",
+          "text": "The study did not evaluate mass production or extreme weather. Independent replication is needed before commercial claims can be made.",
+          "relevance_score": 0.0
+        },
+        {
+          "heading": "Other science news",
+          "text": "A separate astronomy team published a new map of distant galaxies.",
+          "relevance_score": 0.0
+        }
+      ]
+    },
+    "links": [],
+    "metadata": {
+      "published_time": "",
+      "author": "",
+      "structured_data": [],
+      "content_type": "text/html",
+      "fetch_method": "http",
+      "cached": true,
+      "final_url": "https://example.com/news",
+      "fetch_duration_ms": 0,
+      "parse_duration_ms": 0,
+      "query_matched": true,
+      "token_estimator": "utf8_bytes_div_4",
+      "metrics_scope": "main_text"
+    },
+    "optimization": {
+      "raw_bytes": 1399,
+      "raw_text_characters": 1075,
+      "returned_characters": 409,
+      "reduction_percent": 61.95,
+      "estimated_raw_tokens": 269,
+      "estimated_clean_tokens": 88,
+      "estimated_returned_tokens": 103,
+      "estimated_tokens_saved": 166,
+      "token_reduction_percent": 61.71
+    },
+    "actions": []
+  }
+}

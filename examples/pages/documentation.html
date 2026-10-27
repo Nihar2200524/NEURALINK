@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><title>Bridge client guide</title></head><body>
+<nav>Overview | Getting started | Installation | Tutorials | API reference | Configuration | Integrations | Deployment | Troubleshooting | Community | Release notes | Search | Account | Sign in</nav>
+<main><h1>Installation</h1><p>Install the client and send a request to the bridge endpoint.</p><pre>import httpx
+result = httpx.post("http://localhost:8000/v1/extract",
+                    json={"html": "&lt;p&gt;Hello world&lt;/p&gt;"})
+print(result.json())</pre><h2>Options</h2><table><tr><th>Option</th><th>Default</th></tr><tr><td>max_content_length</td><td>12000</td></tr><tr><td>include_links</td><td>true</td></tr></table>
+<p>See the <a href="/reference">API reference</a> for details.</p></main>
+<aside class="newsletter">Subscribe to developer updates, receive release notes and announcements, learn about upcoming webinars, join our community newsletter and discover the latest integrations.</aside></body></html>
