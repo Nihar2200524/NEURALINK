@@ -15,6 +15,7 @@ from .security import tenant_for_token, verify_approval
 from .session_manager import Session, SessionManager, SessionUnavailable
 from .state_engine import capture, extract, inspect_node
 from .action_dispatcher import dispatch
+from .page_reader import read_page
 
 manager = SessionManager()
 
@@ -106,6 +107,15 @@ async def state(session: Session = Depends(owned)) -> State:
     async with session.operation():
         async with asyncio.timeout(10):
             return await capture(session)
+
+
+@app.get("/sessions/{sid}/read")
+async def read_current_page(session: Session = Depends(owned), tab_id: str = "tab_0") -> dict[str, object]:
+    async with session.operation():
+        page = session.pages.get(tab_id)
+        if page is None or page.is_closed():
+            raise HTTPException(404, "Tab not found")
+        return await read_page(page)
 
 
 @app.post("/sessions/{sid}/actions")

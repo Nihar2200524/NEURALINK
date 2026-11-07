@@ -83,6 +83,14 @@ Tests use real Chromium plus controlled network fixtures for stale references, d
 
 ## Runtime controls and deployment
 
+### Reading live, changing pages
+
+Use `GET /sessions/{sid}/read?tab_id=tab_0` after navigation for fresh document content, title, URL, links and observation timestamp. Unlike action references, this read does not require the entire page to remain unchanged between requests. Navigation interruptions and empty documents are retried within a bounded deadline; clicks and typing retain strict stale-reference checks. `CONTENT_AVAILABLE` means content was read, not that a research question has been answered. Check source dates and facts before reporting task completion.
+
+Known challenge pages return `HUMAN_REQUIRED` or `BLOCKED`; HTTP errors are not reported as verified navigation. Detection is heuristic, so callers must inspect returned content too. No CAPTCHA bypass, login bypass, or universal access guarantee is provided. Use a headed local session when manual interaction is needed; Docker headless sessions do not expose a human interaction window.
+
+Run `.venv\Scripts\python scripts/search_task.py Hyderabad gold rate today` to search via Bing through the running API, or pass an HTTPS URL to read a source directly. This local test client reads the separate approval credential from `.env`; do not give that credential to an untrusted autonomous agent.
+
 The Docker Compose project is named `mhp`, with service `agentra`. Run `python scripts/configure_local.py` once to generate ignored local credentials, then `docker compose up -d --build --wait`. Open http://127.0.0.1:8000/docs. `python scripts/api_smoke.py` verifies the live container and cleans up its test session. Credentials are in local `.env` and must not be committed. Stop the project with `docker compose down`.
 
 `seccomp_profile.json` is the official Playwright v1.58.0 Docker profile, downloaded from https://github.com/microsoft/playwright/blob/v1.58.0/utils/docker/seccomp_profile.json. It permits Chromium user namespaces while keeping seccomp filtering. The tested configuration retains no-new-privileges and Docker's default capability set; dropping all capabilities prevented the browser from starting on this host.

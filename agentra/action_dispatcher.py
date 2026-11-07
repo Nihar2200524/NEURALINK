@@ -7,6 +7,7 @@ from .security import validate_url
 from .session_manager import Session
 from .state_engine import capture, resolve
 from .telemetry import OUTCOMES, LATENCY, audit
+from .page_reader import read_page
 
 
 async def dispatch(session: Session, action: Action, approved: bool = False, action_id: str | None = None) -> Receipt:
@@ -64,10 +65,15 @@ async def execute(session: Session, action: Action, approved: bool = False, acti
                 if already:
                     return Receipt(status="FAILED", action_id=aid, detail="POSTCONDITION_ALREADY_SATISFIED: choose evidence that changes after the action", state=await safe_capture(session))
             if action.kind == "NAVIGATE":
-                await page.goto(action.url or "", wait_until="domcontentloaded")
+                response = await page.goto(action.url or "", wait_until="domcontentloaded")
                 await validate_url(page.url)
                 if page.url == "about:blank":
                     raise ValueError("Navigation did not resolve")
+                observation = await read_page(page, min(action.timeout_ms, 10000))
+                if observation['status'] in {'HUMAN_REQUIRED', 'BLOCKED'}:
+                    return Receipt(status=observation['status'], action_id=aid, detail="Page requires human intervention; task is not completed", state=await safe_capture(session))
+                if response and response.status >= 400:
+                    return Receipt(status="FAILED", action_id=aid, detail=f"HTTP {response.status}; task is not completed", state=await safe_capture(session))
             elif locator is not None:
                 if action.kind == "CLICK":
                     await locator.click(trial=True)

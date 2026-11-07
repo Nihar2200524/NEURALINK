@@ -57,7 +57,7 @@ class State(Model):
 
 
 class Receipt(Model):
-    status: Literal["VERIFIED", "AUTHORIZATION_REQUIRED", "STALE_REFERENCE_ERROR", "FAILED", "TIMEOUT"]
+    status: Literal["VERIFIED", "AUTHORIZATION_REQUIRED", "STALE_REFERENCE_ERROR", "FAILED", "TIMEOUT", "HUMAN_REQUIRED", "BLOCKED"]
     action_id: str
     detail: str
     state: State | None = None

@@ -1,5 +1,9 @@
 # Local validation
 
+## Real-world reading fix
+
+42 tests passed in 31.79 seconds; mypy passed 14 modules. A live Bing search for `gold rate Hyderabad today` returned results through Agentra after replacing snapshot-dependent document extraction with fresh read-only evaluation. Goodreturns' Hyderabad page was fetched and read with title/date 7 November 2026; it quoted 24K INR 14,357/g, 22K INR 13,160/g and 18K INR 10,768/g at the observation time. Prices are source-specific, time-sensitive observations, not fixed fixtures. Google's automation challenge was previously reproduced; new classification returns HUMAN_REQUIRED for its challenge URL/content. Continuous-mutation regression proves reads can complete while the DOM changes. Navigation and content availability are explicitly separate from task completion.
+
 ## Docker project mhp
 
 Built and launched `mhp-agentra-1` through Docker Compose. The live API smoke test passed health, authenticated session creation, authorization gating, real HTTPS navigation to example.com, semantic state capture and cleanup. Chromium sandboxing is enabled. Playwright v1.58.0's official seccomp profile enables user namespaces; `no-new-privileges` is retained. Dropping every capability prevented Chromium startup on this host, so the service uses Docker's default capability bounding set while running as non-root. Read-only filesystem, temporary mounts, memory/PID limits and localhost-only publishing remain enabled. This validates the tested workflow, not perfection or all production security requirements.
