@@ -19,6 +19,28 @@ Generate secrets with `python -c "import secrets; print(secrets.token_urlsafe(32
 
 ## Interaction sequence
 
+### Watch the real browser
+
+Before starting the service, set these PowerShell environment variables:
+
+```powershell
+$env:AGENTRA_HEADED = 'true'
+$env:AGENTRA_SLOW_MO_MS = '300'
+.venv\Scripts\python -m uvicorn agentra.server:app --host 127.0.0.1 --port 8000 --no-access-log
+```
+
+Keep your existing authentication variables configured. Stop and restart an already-running server to apply these settings, then create a new session. Each session opens an actual Chromium window on the **server's desktop**. Authorized actions run visibly in that window. Recovery uses the same display settings. Headless remains the default; `.env.example` is documentation, not automatically loaded. Slow motion is optional (0–2000 ms) and counts toward action deadlines.
+
+For an immediate offline demonstration without restarting your server:
+
+```powershell
+.venv\Scripts\python -m scripts.live_demo
+```
+
+The demo opens a synthetic form, fills a message, clicks Save, checks the confirmation, and closes after 15 seconds. Only this fixed offline demo uses preapproved internal actions; the API's approval requirements are unchanged. No credentials or external websites are used. A desktop display is required; containers need separate display infrastructure. Manual interaction can invalidate snapshots, so request fresh state afterwards.
+
+### API workflow
+
 1. Authenticate with `Authorization: Bearer TOKEN`; POST `/sessions`.
 2. GET `/sessions/{id}/state` for scoped references.
 3. POST `/sessions/{id}/actions` with an `Idempotency-Key` and an Action JSON body.

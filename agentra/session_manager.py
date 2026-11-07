@@ -9,6 +9,7 @@ from typing import Literal
 from playwright.async_api import Browser, BrowserContext, Error, Frame, Locator, Page, Playwright, Route, async_playwright
 from .models import Action, Receipt
 from .security import validate_url
+from .config import BrowserSettings
 
 # The observer is a freshness aid, not a security boundary against hostile JS.
 OBSERVER = """(documentId) => {
@@ -96,7 +97,8 @@ class SessionUnavailable(Exception):
 
 
 class SessionManager:
-    def __init__(self) -> None:
+    def __init__(self, settings: BrowserSettings | None = None) -> None:
+        self.settings = settings or BrowserSettings.from_env()
         self.sessions: dict[str, Session] = {}
         self.playwright: Playwright | None = None
         self.capacity_lock = asyncio.Lock()
@@ -108,7 +110,10 @@ class SessionManager:
     async def launch_worker(self, directory: str) -> tuple[Browser, BrowserContext]:
         if not self.playwright or self.closing:
             raise ValueError("Browser service unavailable")
-        browser = await self.playwright.chromium.launch(chromium_sandbox=True, downloads_path=directory)
+        browser = await self.playwright.chromium.launch(
+            chromium_sandbox=True, downloads_path=directory,
+            headless=not self.settings.headed, slow_mo=self.settings.slow_mo_ms,
+        )
         try:
             context = await browser.new_context(accept_downloads=False, service_workers="block")
             context.set_default_timeout(10000)

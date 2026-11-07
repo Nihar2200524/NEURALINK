@@ -1,5 +1,9 @@
 # Local validation
 
+## Live browser mode
+
+25 tests passed in 13.60 seconds; strict mypy passed eight source modules. The headed offline demo ran successfully with real Chromium: TYPE and CLICK returned VERIFIED, the expected confirmation appeared, and the worker closed cleanly. One upstream TestClient deprecation warning remains.
+
 ## Phase 2
 
 Python 3.13.3, pinned Playwright 1.58.0, Windows: 21 tests passed in 26.38 seconds. Strict mypy passed all seven source modules. New real-browser tests cover separate workers, disconnect recovery, cancellation of pending approvals, historical idempotency, tenant ownership, stale references across recovery, cleanup and late events. One upstream httpx TestClient deprecation warning remains. OS-level process kills, cgroup limits and container execution have not been validated.
