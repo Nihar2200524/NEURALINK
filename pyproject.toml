@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "agentra"
 version = "0.1.0"
 requires-python = ">=3.11"
-dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "playwright==1.58.0", "tiktoken>=0.9,<1", "prometheus-client>=0.21,<1"]
+dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "playwright==1.58.0", "tiktoken>=0.9,<1", "prometheus-client>=0.21,<1", "psutil>=6,<8"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "pytest-asyncio>=0.25", "httpx>=0.28", "mypy>=1.15", "psutil>=6"]

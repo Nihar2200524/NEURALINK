@@ -12,4 +12,4 @@ RUN python -c "import tiktoken; tiktoken.get_encoding('cl100k_base')" && chmod -
 USER agentra
 WORKDIR /home/agentra
 EXPOSE 8000
-CMD ["uvicorn", "agentra.server:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]
+CMD ["uvicorn", "agentra.server:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log", "--limit-concurrency", "64", "--timeout-keep-alive", "5"]

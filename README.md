@@ -1,6 +1,6 @@
 # Agentra
 
-Executable first iteration of agent-native browser middleware. This is a development foundation, **not yet a hardened production release**.
+Agent-native browser middleware with real Chromium workers, semantic snapshots, reviewed actions and explicit recovery. The application is runnable and tested; see [REQUIREMENTS.md](REQUIREMENTS.md) for remaining production infrastructure requirements and unsupported browser surfaces.
 
 ## Run
 
@@ -54,12 +54,12 @@ Example action: `{"kind":"NAVIGATE","url":"https://example.com"}`. Clicks requir
 ## Boundaries and remaining production work
 
 - CDP reads accessibility metadata only. Unique role/name locators address elements; ambiguous unnamed nodes are omitted. Open shadow DOM is supported by locators; closed shadow roots cannot be safely operated through this interface. Canvas/WebGL/image CAPTCHA requires an explicit human handoff, not automatic bypass.
-- The token ceiling covers serialized compact state using cl100k_base. Accessibility-based extraction is not a full Markdown/table fidelity exporter. Large trees need further pagination and capture-cost controls.
-- DNS validation rejects non-public addresses and checks intercepted requests, with service workers blocked. **It does not prevent DNS rebinding or fully mediate redirect-chain/browser traffic. Deploy only behind an independently enforced egress proxy/firewall before untrusted browsing.** WebSockets are currently disabled. No arbitrary upload/download API is exposed.
-- Each session now owns a separate Chromium browser worker and isolated context, with a dedicated download staging directory. Contexts and processes are not a substitute for OS resource and network isolation. Per-session cgroups/memory caps and network namespaces remain required. Worker failure invalidates references and pending approvals; explicit recovery creates a blank worker without restoring credentials, URLs or actions. Restarting the service loses ephemeral sessions.
-- Mutation observers catch ordinary DOM changes, not hostile JavaScript tampering, all shadow-root changes, or the race between checking and dispatching. This is not a deterministic security guarantee. Snapshot READY means stable capture, not universal hydration; actionability is enforced on the target during execution.
+- The 2,500-token ceiling covers serialized compact state using cl100k_base. Markdown extraction preserves ordinary headings, paragraphs, lists and tables and excludes form values. Extraction is capped at 20,000 nodes/2 million text characters; oversized documents fail explicitly and should be requested by smaller subtree. Document references allow whole-frame extraction. Merged table cells and code whitespace are not losslessly preserved.
+- The authenticated local egress proxy resolves and validates all DNS answers, then connects to a numeric public IP. Chromium is configured to use it for HTTP(S), including loopback destinations; only ports 80 and 443 are allowed. TLS remains end-to-end. WebSockets/service workers are disabled. Independent OS network isolation is still needed to contain browser exploits or unsupported bypass transports. No arbitrary upload/download API is exposed.
+- Each session owns a separate Chromium worker and context. A one-second RSS monitor closes workers exceeding `AGENTRA_SESSION_MEMORY_MB` (default 1024). This is a sampled threshold, not a kernel hard cap. Compose applies an aggregate memory/PID limit. Per-session cgroups/Job Objects and network namespaces remain deployment work. Recovery creates a blank worker without restoring credentials, URLs or actions.
+- Mutation observers, form-value hashes and open-shadow hashes detect ordinary changes, but cannot guarantee freshness against hostile scripts or eliminate check-to-dispatch races. Snapshot READY describes capture stability; `/readiness` checks a specific target. Closed shadow roots cannot be reliably addressed. Canvas is explicitly flagged for human review.
 - All mutations need approval because semantic risk inference cannot prove an action safe. An approved page may still execute arbitrary scripts/network side effects. Production needs scoped outbound effect enforcement and short-lived, action-bound approval identities. No secrets or typed text are deliberately logged; deploy with request-body logging disabled.
-- Idle sessions expire after 15 minutes. Sessions, pending approvals and idempotency history have bounds. Prometheus exposes snapshot durations and token sizes; tenant-level telemetry and structured audit receipts need expansion.
+- Idle sessions expire after 15 minutes. Sessions, tabs, pending approvals, idempotency history, request bodies and action queues have bounds. Prometheus exposes sessions, action latency/outcomes, snapshot latency/tokens, recovery and resource stops. JSON audit events exclude page data, URLs, credentials and typed values. Validation errors omit submitted input.
 - Container runs non-root with Chromium sandbox enabled. Supply a compatible host seccomp/user-namespace policy; never solve sandbox failures with `--no-sandbox`. Image build and deployment require separate verification.
 
 ## Verification
@@ -70,7 +70,7 @@ python -m mypy agentra
 python -m scripts.benchmark
 ```
 
-Tests use real Chromium and synthetic HTML for stale references, delayed hydration, multi-tab/frame topology and approval gates. Benchmarks report actual local measurements; no performance claims are assumed. Full multi-origin, crash-recovery, adversarial egress and resource stress coverage remains to be added.
+Tests use real Chromium plus controlled network fixtures for stale references, delayed hydration, frame topology, authorization, recovery, shadow DOM, extraction, egress and resource monitoring. `python -m scripts.network_smoke` separately tests public HTTPS navigation through the proxy. Benchmarks report empirical local measurements. Comprehensive adversarial browser/network testing and sustained resource stress testing remain release gates.
 
 ## Phase 2: worker lifecycle
 
@@ -80,5 +80,17 @@ Tests use real Chromium and synthetic HTML for stale references, delayed hydrati
 - Queued operations check lifecycle after acquiring the session lock. Idle expiry rechecks activity under that lock; active operations refresh activity on completion. Worker resources are closed before temporary directories are removed.
 - This phase tests real browser disconnection and recovery, cross-tenant denial, stale approvals, repeated recovery/deletion and idle cleanup. It does not yet test OS-level process kills, memory exhaustion, or recovery from loss of the shared Playwright driver. A browser worker is per session; the API/driver process is still shared.
 - Existing benchmark results describe the phase-1 shared-browser architecture and must not be used to estimate this phase's memory overhead.
+
+## Runtime controls and deployment
+
+The Docker Compose project is named `mhp`, with service `agentra`. Run `python scripts/configure_local.py` once to generate ignored local credentials, then `docker compose up -d --build --wait`. Open http://127.0.0.1:8000/docs. `python scripts/api_smoke.py` verifies the live container and cleans up its test session. Credentials are in local `.env` and must not be committed. Stop the project with `docker compose down`.
+
+`seccomp_profile.json` is the official Playwright v1.58.0 Docker profile, downloaded from https://github.com/microsoft/playwright/blob/v1.58.0/utils/docker/seccomp_profile.json. It permits Chromium user namespaces while keeping seccomp filtering. The tested configuration retains no-new-privileges and Docker's default capability set; dropping all capabilities prevented the browser from starting on this host.
+
+`AGENTRA_MAX_SESSIONS` defaults to 8; `AGENTRA_MAX_TABS` defaults to 12. Configuration is server-controlled and validated at startup. `/health` supplies an unauthenticated availability check; `/metrics` requires a tenant token. Use one API worker because state is in memory.
+
+`POST /sessions/{sid}/review` accepts the same action ID/approver credential body as authorize and returns the exact pending action and remaining validity. `/authorize` consumes it once. Clients must treat FAILED/TIMEOUT as potentially having effects. The approval key belongs to the trusted reviewer, never the autonomous agent. `POST /sessions/{sid}/readiness` accepts `scoped_ref` and `timeout_ms` and returns READY/PARTIAL/TIMEOUT for that target. These APIs are documented at `/docs` and `/openapi.json`.
+
+For container deployment set the two secrets in your environment and use `docker compose up --build`. The Compose file binds localhost only, applies memory/PID constraints, uses a read-only root filesystem and temporary mounts, and preserves Chromium sandboxing. Host seccomp/user-namespace compatibility must be validated. External TLS, secret rotation, per-session kernel isolation and firewall enforcement are operator responsibilities. See [ARCHITECTURE.md](ARCHITECTURE.md) for sequence flow and trust boundaries, and [VALIDATION.md](VALIDATION.md) for actual test evidence.
 
 Implementation references: [Playwright locators](https://playwright.dev/python/docs/locators), [network interception](https://playwright.dev/python/docs/network).

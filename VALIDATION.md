@@ -1,5 +1,23 @@
 # Local validation
 
+## Docker project mhp
+
+Built and launched `mhp-agentra-1` through Docker Compose. The live API smoke test passed health, authenticated session creation, authorization gating, real HTTPS navigation to example.com, semantic state capture and cleanup. Chromium sandboxing is enabled. Playwright v1.58.0's official seccomp profile enables user namespaces; `no-new-privileges` is retained. Dropping every capability prevented Chromium startup on this host, so the service uses Docker's default capability bounding set while running as non-root. Read-only filesystem, temporary mounts, memory/PID limits and localhost-only publishing remain enabled. This validates the tested workflow, not perfection or all production security requirements.
+
+## Hardening and retrieval phase
+
+Windows, Python 3.13.3, pinned Playwright 1.58.0: 39 tests passed in 18.01 seconds. Strict mypy passed 13 source modules. The public HTTPS proxy smoke test successfully navigated to example.com and returned VERIFIED. Focused API tests passed after the health endpoint update. Tests requiring tokenizer/browser assets ran outside the restricted execution runner; its isolated cache cannot resolve/download the vocabulary.
+
+Measured synthetic run (101 buttons; cumulative live workers):
+
+| Workers | Capture seconds | Verified action seconds | HTML tokens | State tokens | Process-tree RSS bytes | Cumulative CPU seconds |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 0.372 | 0.491 | 847 | 2435 | 422297600 | 3.219 |
+| 2 | 0.732 | 0.892 | 847 | 2435 | 754708480 | 5.578 |
+| 3 | 0.639 | 0.850 | 847 | 2435 | 1088614400 | 8.094 |
+
+Three concurrent captures completed in 0.859 seconds. These are single-run measurements, not throughput guarantees. This small fixture still uses more tokens in structured state than raw HTML; no token-saving claim is supported.
+
 ## Live browser mode
 
 25 tests passed in 13.60 seconds; strict mypy passed eight source modules. The headed offline demo ran successfully with real Chromium: TYPE and CLICK returned VERIFIED, the expected confirmation appeared, and the worker closed cleanly. One upstream TestClient deprecation warning remains.

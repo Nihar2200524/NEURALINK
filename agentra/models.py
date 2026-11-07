@@ -14,7 +14,7 @@ class Postcondition(Model):
 
 class Action(Model):
     kind: Literal["NAVIGATE", "CLICK", "TYPE", "SELECT_OPTION", "CHECK"]
-    scoped_ref: str | None = None
+    scoped_ref: str | None = Field(default=None, pattern=r"^snap_\d+::tab_\d+::frame_\d+::@e\d+$")
     tab_id: str = "tab_0"
     url: str | None = Field(default=None, max_length=8192)
     text: str = Field(default="", max_length=100000)
@@ -27,6 +27,10 @@ class Action(Model):
     def validate_target(self) -> "Action":
         if self.kind == "NAVIGATE" and not self.url:
             raise ValueError("NAVIGATE requires url")
+        if self.kind == "NAVIGATE" and self.scoped_ref:
+            raise ValueError("NAVIGATE must not include scoped_ref")
+        if self.press_enter and self.kind != "TYPE":
+            raise ValueError("press_enter only applies to TYPE")
         if self.kind != "NAVIGATE" and not self.scoped_ref:
             raise ValueError("Element action requires scoped_ref")
         if (self.kind == "CLICK" or self.press_enter) and not self.postcondition:
@@ -49,6 +53,7 @@ class State(Model):
     sources: dict[str, str] = Field(default_factory=dict)
     truncated: bool = False
     tokens: int = 0
+    handoff_reasons: list[str] = Field(default_factory=list)
 
 
 class Receipt(Model):
@@ -68,3 +73,8 @@ class Inspect(Model):
     budget: int = Field(default=2500, ge=100, le=10000)
     depth: int = Field(default=5, ge=1, le=30)
     format: Literal["markdown", "json"] = "markdown"
+
+
+class ReadinessRequest(Model):
+    scoped_ref: str
+    timeout_ms: int = Field(default=2000, ge=100, le=10000)
