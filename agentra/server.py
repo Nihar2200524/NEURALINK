@@ -3,12 +3,13 @@ from contextlib import asynccontextmanager, suppress
 import hashlib
 import time
 from collections.abc import AsyncIterator
-from fastapi import Depends, FastAPI, Header, HTTPException
-from fastapi.responses import Response, StreamingResponse
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from playwright.async_api import Error as BrowserError
 from .models import Action, Authorization, Inspect, Receipt, State
 from .security import tenant_for_token, verify_approval
-from .session_manager import Session, SessionManager
+from .session_manager import Session, SessionManager, SessionUnavailable
 from .state_engine import capture, extract, inspect_node
 from .action_dispatcher import dispatch
 
@@ -31,6 +32,16 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(title="Agentra", version="0.1.0", lifespan=lifespan)
 
 
+@app.exception_handler(BrowserError)
+async def browser_error(request: Request, exc: BrowserError) -> JSONResponse:
+    return JSONResponse(status_code=503, content={"detail": "BROWSER_OPERATION_FAILED", "retry_safe": False, "guidance": "Inspect session status; do not replay uncertain actions"})
+
+
+@app.exception_handler(SessionUnavailable)
+async def unavailable(request: Request, exc: SessionUnavailable) -> JSONResponse:
+    return JSONResponse(status_code=409, content={"detail": "SESSION_UNAVAILABLE", "lifecycle": str(exc), "recovery": "POST /sessions/{sid}/recover creates a blank worker; actions are never replayed"})
+
+
 def tenant(authorization: str = Header(default="")) -> str:
     return tenant_for_token(authorization)
 
@@ -41,6 +52,18 @@ def owned(sid: str, owner: str = Depends(tenant)) -> Session:
         raise HTTPException(404, "Session not found")
     session.touched = time.monotonic()
     return session
+
+
+@app.get("/sessions/{sid}/status")
+async def status(session: Session = Depends(owned)) -> dict[str, object]:
+    async with session.lock:
+        return {"session_id": session.id, "lifecycle": session.lifecycle, "generation": session.generation, "failure": session.failure, "tabs": list(session.pages)}
+
+
+@app.post("/sessions/{sid}/recover")
+async def recover(session: Session = Depends(owned)) -> dict[str, object]:
+    await manager.recover(session)
+    return {"session_id": session.id, "lifecycle": session.lifecycle, "generation": session.generation, "detail": "Worker available; no actions replayed"}
 
 
 @app.post("/sessions", status_code=201)
@@ -58,14 +81,14 @@ async def delete(session: Session = Depends(owned)) -> None:
 
 @app.get("/sessions/{sid}/state")
 async def state(session: Session = Depends(owned)) -> State:
-    async with session.lock:
+    async with session.operation():
         return await capture(session)
 
 
 @app.post("/sessions/{sid}/actions")
 async def action(body: Action, session: Session = Depends(owned), idempotency_key: str = Header(min_length=1, max_length=128)) -> Receipt:
     fingerprint = hashlib.sha256(body.model_dump_json().encode()).hexdigest()
-    async with session.lock:
+    async with session.operation():
         previous = session.results.get(idempotency_key)
         if previous:
             if previous[0] != fingerprint:
@@ -82,7 +105,7 @@ async def action(body: Action, session: Session = Depends(owned), idempotency_ke
 async def authorize(body: Authorization, session: Session = Depends(owned)) -> Receipt:
     if not verify_approval(body.auth_token):
         raise HTTPException(403, "Invalid approver credential")
-    async with session.lock:
+    async with session.operation():
         pending = session.pending.pop(body.action_id, None)
         if not pending or pending[1] < time.monotonic():
             raise HTTPException(409, "Approval expired, consumed, or unknown")
@@ -95,7 +118,7 @@ async def authorize(body: Authorization, session: Session = Depends(owned)) -> R
 
 @app.post("/sessions/{sid}/inspect")
 async def inspect(body: Inspect, session: Session = Depends(owned)) -> dict[str, object]:
-    async with session.lock:
+    async with session.operation():
         try:
             return await inspect_node(session, body.scoped_ref, body.budget, body.depth)
         except ValueError as exc:
@@ -104,7 +127,7 @@ async def inspect(body: Inspect, session: Session = Depends(owned)) -> dict[str,
 
 @app.post("/sessions/{sid}/extract")
 async def extract_content(body: Inspect, session: Session = Depends(owned)) -> StreamingResponse:
-    async with session.lock:
+    async with session.operation():
         try:
             content = await extract(session, body.scoped_ref, body.format)
         except ValueError as exc:

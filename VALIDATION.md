@@ -1,5 +1,11 @@
 # Local validation
 
+## Phase 2
+
+Python 3.13.3, pinned Playwright 1.58.0, Windows: 21 tests passed in 26.38 seconds. Strict mypy passed all seven source modules. New real-browser tests cover separate workers, disconnect recovery, cancellation of pending approvals, historical idempotency, tenant ownership, stale references across recovery, cleanup and late events. One upstream httpx TestClient deprecation warning remains. OS-level process kills, cgroup limits and container execution have not been validated.
+
+## Phase 1 baseline
+
 Final regression tests: Python 3.13.3, Playwright 1.63.0, Windows. 16 passed in 13.12 seconds, including frame-specific AX capture. Strict mypy: all seven source modules passed using the project virtual environment (Playwright 1.58.0).
 
 Pinned-environment verification: Playwright 1.58.0 and its Chromium also passed all 16 tests in 11.25 seconds. The test client emitted an upstream httpx deprecation warning.
