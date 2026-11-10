@@ -93,6 +93,8 @@ Run `.venv\Scripts\python scripts/search_task.py Hyderabad gold rate today` to s
 
 The Docker Compose project is named `mhp`, with service `agentra`. Run `python scripts/configure_local.py` once to generate ignored local credentials, then `docker compose up -d --build --wait`. Open http://127.0.0.1:8000/docs. `python scripts/api_smoke.py` verifies the live container and cleans up its test session. Credentials are in local `.env` and must not be committed. Stop the project with `docker compose down`.
 
+The service uses `restart: unless-stopped`. Docker Desktop must be running; a stopped Docker engine makes the API unavailable. Container restarts lose in-memory sessions, so clients must create fresh sessions and must not replay uncertain actions.
+
 `seccomp_profile.json` is the official Playwright v1.58.0 Docker profile, downloaded from https://github.com/microsoft/playwright/blob/v1.58.0/utils/docker/seccomp_profile.json. It permits Chromium user namespaces while keeping seccomp filtering. The tested configuration retains no-new-privileges and Docker's default capability set; dropping all capabilities prevented the browser from starting on this host.
 
 `AGENTRA_MAX_SESSIONS` defaults to 8; `AGENTRA_MAX_TABS` defaults to 12. Configuration is server-controlled and validated at startup. `/health` supplies an unauthenticated availability check; `/metrics` requires a tenant token. Use one API worker because state is in memory.

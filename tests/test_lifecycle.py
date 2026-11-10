@@ -2,6 +2,7 @@ import asyncio
 import os
 import time
 import pytest
+import psutil
 from agentra.models import Action
 from agentra.action_dispatcher import dispatch
 from agentra.session_manager import SessionManager, SessionUnavailable
@@ -83,3 +84,21 @@ async def test_old_worker_event_does_not_poison_recovery(manager):
     await manager.recover(session)
     session.mark_crashed(previous, "LATE_EVENT")
     assert session.lifecycle == "ACTIVE"
+
+
+async def test_os_worker_kill_recovers_without_affecting_other_session(manager):
+    first = await manager.create("kill-test")
+    second = await manager.create("survivor")
+    process = psutil.Process(first.worker_pid)
+    assert process.create_time() == first.worker_created
+    process.kill()
+    async with asyncio.timeout(10):
+        while first.lifecycle == "ACTIVE":
+            await asyncio.sleep(.05)
+    assert second.browser.is_connected()
+    await second.pages["tab_0"].set_content("<h1>Still working</h1>")
+    assert await second.pages["tab_0"].locator("h1").inner_text() == "Still working"
+    await manager.recover(first)
+    assert first.lifecycle == "ACTIVE"
+    assert first.pages["tab_0"].url == "about:blank"
+    assert first.generation == 2

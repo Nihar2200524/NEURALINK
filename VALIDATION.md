@@ -1,5 +1,11 @@
 # Local validation
 
+## Progress audit — 10 November 2026
+
+Docker Desktop's engine was stopped at the start of the audit. Restored the `mhp` project and verified healthy status plus the authenticated live API navigation/snapshot smoke test. The existing 42-test suite passed in 45.11 seconds; the lifecycle suite then passed all five tests, including a new actual OS-level browser-process kill test (43 distinct tests now). Strict mypy passed all 14 modules. One upstream TestClient deprecation warning remains. Added `restart: unless-stopped`; this restarts the container when Docker runs, but cannot start Docker Desktop itself.
+
+The new process-kill test checks the worker PID creation time before termination, verifies the other session remains usable, and verifies blank-session recovery. Production completion is still gated by per-session kernel-enforced resource/filesystem/network isolation and sustained adversarial testing; earlier successful smoke tests do not remove these requirements.
+
 ## Real-world reading fix
 
 42 tests passed in 31.79 seconds; mypy passed 14 modules. A live Bing search for `gold rate Hyderabad today` returned results through Agentra after replacing snapshot-dependent document extraction with fresh read-only evaluation. Goodreturns' Hyderabad page was fetched and read with title/date 7 November 2026; it quoted 24K INR 14,357/g, 22K INR 13,160/g and 18K INR 10,768/g at the observation time. Prices are source-specific, time-sensitive observations, not fixed fixtures. Google's automation challenge was previously reproduced; new classification returns HUMAN_REQUIRED for its challenge URL/content. Continuous-mutation regression proves reads can complete while the DOM changes. Navigation and content availability are explicitly separate from task completion.
