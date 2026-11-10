@@ -14,6 +14,9 @@ dev = ["pytest>=8", "pytest-asyncio>=0.25", "httpx>=0.28", "mypy>=1.15", "psutil
 [tool.setuptools.packages.find]
 include = ["agentra*"]
 
+[tool.setuptools.package-data]
+agentra = ["static/*.html"]
+
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"

@@ -2,9 +2,10 @@ import asyncio
 from contextlib import asynccontextmanager, suppress
 import hashlib
 import time
+from pathlib import Path
 from collections.abc import AsyncIterator
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
-from fastapi.responses import JSONResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from playwright.async_api import Error as BrowserError
 from fastapi.exceptions import RequestValidationError
@@ -75,6 +76,36 @@ def owned(sid: str, owner: str = Depends(tenant)) -> Session:
         raise HTTPException(404, "Session not found")
     session.touched = time.monotonic()
     return session
+
+
+@app.get("/", include_in_schema=False)
+async def presentation() -> FileResponse:
+    return FileResponse(Path(__file__).parent / "static" / "index.html", headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
+
+
+@app.get("/presentation")
+async def presentation_state(owner: str = Depends(tenant)) -> JSONResponse:
+    # Do not acquire action locks: observers must remain responsive during navigation.
+    sessions = []
+    for session in list(manager.sessions.values()):
+        if session.tenant != owner:
+            continue
+        receipts = [r for _, r in list(session.results.values())[-30:]]
+        sessions.append({"id": session.id, "lifecycle": session.lifecycle,
+                         "busy": session.lock.locked(), "tabs": list(session.pages),
+                         "receipts": [{"id": r.action_id, "status": r.status} for r in receipts]})
+    return JSONResponse({"sessions": sessions}, headers={"Cache-Control": "no-store"})
+
+
+@app.get("/sessions/{sid}/preview")
+async def preview(session: Session = Depends(owned), tab_id: str = "tab_0") -> Response:
+    page = session.pages.get(tab_id)
+    if page is None or page.is_closed():
+        raise HTTPException(404, "Tab not found")
+    # A screenshot never creates a semantic snapshot or invalidates action refs.
+    async with asyncio.timeout(4):
+        data = await page.screenshot(type="jpeg", quality=65, timeout=3500)
+    return Response(data, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
 
 
 @app.get("/sessions/{sid}/status")

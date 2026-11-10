@@ -5,3 +5,5 @@ __pycache__/
 *.egg-info/
 .env
 benchmark-results.json
+
+presentation-preview.png

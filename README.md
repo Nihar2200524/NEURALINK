@@ -104,3 +104,16 @@ The service uses `restart: unless-stopped`. Docker Desktop must be running; a st
 For container deployment set the two secrets in your environment and use `docker compose up --build`. The Compose file binds localhost only, applies memory/PID constraints, uses a read-only root filesystem and temporary mounts, and preserves Chromium sandboxing. Host seccomp/user-namespace compatibility must be validated. External TLS, secret rotation, per-session kernel isolation and firewall enforcement are operator responsibilities. See [ARCHITECTURE.md](ARCHITECTURE.md) for sequence flow and trust boundaries, and [VALIDATION.md](VALIDATION.md) for actual test evidence.
 
 Implementation references: [Playwright locators](https://playwright.dev/python/docs/locators), [network interception](https://playwright.dev/python/docs/network).
+
+### Guest / judge observation room
+
+Open http://127.0.0.1:8000/ and connect with a tenant API token, or run
+`.venv\Scripts\python scripts/presentation.py` to open a connected presentation window
+using the ignored local configuration without displaying its token.
+Run your existing Agentra task in another terminal. The view shows that tenant's active
+sessions, browser tabs, viewport images (roughly every second), and the latest 30 action
+receipts per session. Full-screen and pause controls support presentations. No task is
+simulated or started by the viewer. Short-lived sessions disappear when deleted.
+The viewer is read-only; its credential remains in browser memory until disconnect/reload.
+Present a dedicated demo session because screenshots can show personal page content.
+This is a localhost presenter screen, not a public guest sharing service.
