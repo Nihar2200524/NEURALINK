@@ -7,3 +7,6 @@ __pycache__/
 benchmark-results.json
 
 presentation-preview.png
+
+release/
+agentra-ollama.tar

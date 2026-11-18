@@ -17,8 +17,10 @@ from .session_manager import Session, SessionManager, SessionUnavailable
 from .state_engine import capture, extract, inspect_node
 from .action_dispatcher import dispatch
 from .page_reader import read_page
+from .research import ResearchRunner, ResearchRequest
 
 manager = SessionManager()
+research = ResearchRunner(manager)
 
 
 @asynccontextmanager
@@ -28,6 +30,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     try:
         yield
     finally:
+        await research.close()
         reaper.cancel()
         with suppress(asyncio.CancelledError):
             await reaper
@@ -68,6 +71,37 @@ async def unavailable(request: Request, exc: SessionUnavailable) -> JSONResponse
 
 def tenant(authorization: str = Header(default="")) -> str:
     return tenant_for_token(authorization)
+
+
+@app.post("/tasks", status_code=202)
+async def start_task(body: ResearchRequest, owner: str = Depends(tenant)) -> JSONResponse:
+    if not verify_approval(body.approval_token.get_secret_value()):
+        raise HTTPException(403, "Separate approver credential required for research navigation")
+    try:
+        job = research.start(owner, body)
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    return JSONResponse(job.public(), status_code=202, headers={"Cache-Control": "no-store"})
+
+
+@app.get("/tasks/{task_id}")
+async def task_status(task_id: str, owner: str = Depends(tenant)) -> JSONResponse:
+    job = research.jobs.get(task_id)
+    if not job or job.owner != owner:
+        raise HTTPException(404, "Task not found")
+    return JSONResponse(job.public(), headers={"Cache-Control": "no-store"})
+
+
+@app.delete("/tasks/{task_id}", status_code=204)
+async def cancel_task(task_id: str, owner: str = Depends(tenant)) -> None:
+    job = research.jobs.get(task_id)
+    if not job or job.owner != owner:
+        raise HTTPException(404, "Task not found")
+    if job.worker and not job.worker.done():
+        job.worker.cancel()
+        job.status = "CANCELLED"
+        with suppress(asyncio.CancelledError):
+            await job.worker
 
 
 def owned(sid: str, owner: str = Depends(tenant)) -> Session:

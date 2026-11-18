@@ -51,3 +51,18 @@ Synthetic benchmark with 100 buttons, cumulative live sessions:
 | 3 | 0.634 | 824 | 2426 | 618684416 |
 
 This fixture has little HTML overhead. Structured addressing increases token use here; no token savings demonstrated. These are individual local runs, not statistical performance guarantees. Docker has not been built or validated.
+
+## Ollama research integration — 18 November 2026
+
+- Full suite: 51 passed; strict mypy: 15 modules passed.
+- Real local qwen3.5:latest, 4K context, thinking off, host Ollama from Docker:
+  model selected open_url for example.com, browser returned content, model selected
+  finish with an exact source quote, result ANSWER_READY. No manually chosen
+  intermediate browser action was injected by the test.
+- Live UI: task submission, progress, final answer/source, browser image,
+  390px viewport without horizontal overflow, no JavaScript errors.
+- CPU run: about 111 seconds for two decisions including model startup. GPU laptop
+  timing and broad multi-site research success are not yet benchmarked.
+- Completion is a model assessment with quote-membership validation, not an
+  independent verification of every factual claim. Failure, cancellation, step
+  limit, unsupported tools, cross-tenant access and missing approval are tested.

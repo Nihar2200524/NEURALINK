@@ -117,3 +117,8 @@ simulated or started by the viewer. Short-lived sessions disappear when deleted.
 The viewer is read-only; its credential remains in browser memory until disconnect/reload.
 Present a dedicated demo session because screenshots can show personal page content.
 This is a localhost presenter screen, not a public guest sharing service.
+
+## Autonomous research with local Qwen
+
+See [OLLAMA_SETUP.md](OLLAMA_SETUP.md) for the GPU laptop setup, Docker image import, task UI, and completion limitations.
+

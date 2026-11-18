@@ -7,12 +7,16 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       AGENTRA_TOKENS: ${AGENTRA_TOKENS:?Set tenant tokens}
       AGENTRA_APPROVER_TOKEN: ${AGENTRA_APPROVER_TOKEN:?Set a separate approver secret}
       AGENTRA_HEADED: "false"
       AGENTRA_MAX_SESSIONS: "4"
       AGENTRA_SESSION_MEMORY_MB: "768"
+      AGENTRA_OLLAMA_URL: ${AGENTRA_OLLAMA_URL:-http://host.docker.internal:11434}
+      AGENTRA_OLLAMA_MODEL: ${AGENTRA_OLLAMA_MODEL:-qwen3.5:latest}
     mem_limit: 4g
     pids_limit: 512
     shm_size: 1g
