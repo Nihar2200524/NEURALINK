@@ -107,3 +107,22 @@ async def test_ollama_http_error_is_redacted(monkeypatch):
     await runner.run(job)
     assert job.status=='FAILED'
     assert 'sensitive' not in str(job.public())
+
+
+def test_initial_observation_skips_large_navigation_preamble():
+    from agentra.research import initial_offset
+    body=('navigation menu\n'*500)+'# Gold rate in Hyderabad\nToday 22K is 100 per gram.'
+    offset=initial_offset(body)
+    assert body[offset:].startswith('# Gold rate')
+    assert 'Today 22K' in body[offset:offset+4500]
+    assert initial_offset('Page without a heading')==0
+
+
+def test_compact_search_links_preserve_destination_and_deduplicate():
+    import base64
+    from agentra.research import compact_links
+    target='https://example.com/gold'
+    encoded=base64.urlsafe_b64encode(target.encode()).decode().rstrip('=')
+    links=[{'url':'https://www.bing.com/ck/a?u=a1'+encoded+'&tracking=long','text':'Hyderabad gold rate'},
+           {'url':target,'text':'Gold'}, {'url':'javascript:alert(1)','text':'gold'}]
+    assert compact_links(links,'Hyderabad gold')==[{'url':target,'text':'Hyderabad gold rate'}]

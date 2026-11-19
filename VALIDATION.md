@@ -66,3 +66,10 @@ This fixture has little HTML overhead. Structured addressing increases token use
 - Completion is a model assessment with quote-membership validation, not an
   independent verification of every factual claim. Failure, cancellation, step
   limit, unsupported tools, cross-tenant access and missing approval are tested.
+
+## Research context optimization — 19 November 2026
+- Skip preamble before the first nonempty H1 on initial page reads; explicit offsets remain unchanged.
+- Decode Bing result redirects, deduplicate and rank links; send at most eight compact links.
+- Keep latest observation after a missing tool call; report model and tool elapsed seconds in task events.
+- Nine focused research tests and strict mypy passed. No GPU speedup measured yet.
+
